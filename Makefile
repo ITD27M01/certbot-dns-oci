@@ -17,6 +17,7 @@ clean:
 	@rm -rf build
 	@rm -rf .pytest_cache
 	@find . -name "*.pyc" -delete
+	@find . -type d -name "__pycache__" -exec rm -rf {} +
 	@rm -rf *.egg-info
 	@rm -rf .eggs
 	@pip uninstall certbot-dns-oci -y
