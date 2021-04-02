@@ -1,0 +1,4 @@
+zope.interface
+oci>=2.35.0
+acme>=1.13.0
+certbot>=1.13.0
