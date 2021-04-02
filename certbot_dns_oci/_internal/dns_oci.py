@@ -36,8 +36,9 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     @classmethod
     def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
-        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=120)
+        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=60)
         add('credentials', help='Path to OCI credentials file', default=None)
+        add('profile', help='Profile name in OCI credentials file', default=None)
 
     def _setup_credentials(self):
         if self.conf('credentials') is None:
@@ -47,7 +48,9 @@ class Authenticator(dns_common.DNSAuthenticator):
 
         oci_config_profile = 'DEFAULT'
 
-        if 'OCI_CONFIG_PROFILE' in environ:
+        if self.conf('profile') is not None:
+            oci_config_profile = self.conf('profile')
+        elif 'OCI_CONFIG_PROFILE' in environ:
             oci_config_profile = environ.get('OCI_CONFIG_PROFILE')
 
         self.credentials = config.from_file(file_location=oci_config_file, profile_name=oci_config_profile)
