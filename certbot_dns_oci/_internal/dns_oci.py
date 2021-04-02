@@ -99,7 +99,7 @@ class _OciClient:
         try:
             if rr_set.data.items:
                 logger.debug('Removing TXT record with data: %s', rr_set.data.items)
-                self.client.delete_rr_set(zone_name_or_id=domain_name, domain=record_name, rtype='TXT')
+                self.client.delete_rr_set(zone_name_or_id=zone_name, domain=record_name, rtype='TXT')
         except Exception as e:
             logger.warning('Error deleting TXT record %s using the OCI API: %s', rr_set.data.items, e)
 
