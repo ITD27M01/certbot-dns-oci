@@ -13,16 +13,16 @@ pip3 install certbot-dns-oci
 
 | Name        | Description | Default |
 | ------------- |:-------------:| :-------------: |
-| `--authenticator dns-oci` | Select the plugin |Required|
-| `--dns-oci-credentials` | OCI credentials config file location |`~/.oci/config`|
-| `--dns-oci-profile` | Profile name in OCI credentials config file |`DEFAULT`|
-| `--dns-oci-propagation-seconds` | DNS record propagation timeout |60|
+| **--authenticator dns-oci** | Select the plugin |Required|
+| **--dns-oci-credentials** | OCI credentials config file location |`~/.oci/config`|
+| **--dns-oci-profile** | Profile name in OCI credentials config file |`DEFAULT`|
+| **--dns-oci-propagation-seconds** | DNS record propagation timeout |60|
 
 ## Usage
 
 ```shell
 certbot certonly --email user@example.com \
-                 --authenticator dns-oci -d 'www.example.com' --dry-run
+                 --authenticator dns-oci -d www.example.com --dry-run
 ```
 
 ## Requirements
