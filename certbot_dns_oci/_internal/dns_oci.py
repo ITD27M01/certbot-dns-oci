@@ -6,6 +6,7 @@ import zope.interface
 from oci import config
 from oci.dns import DnsClient
 from oci.dns.models import RecordDetails, UpdateRRSetDetails
+from oci.auth.signers import InstancePrincipalsSecurityTokenSigner
 from oci.exceptions import ServiceError
 from os import path, environ
 
@@ -43,6 +44,9 @@ class Authenticator(dns_common.DNSAuthenticator):
     def _setup_credentials(self):
         if self.conf('credentials') is None:
             oci_config_file = path.join(path.expanduser("~"), ".oci", "config")
+        elif self.conf('credentials') == 'instance_principal':
+            self.credentials = InstancePrincipalsSecurityTokenSigner()
+            return
         else:
             oci_config_file = self.conf('credentials')
 
@@ -70,7 +74,10 @@ class _OciClient:
     Encapsulates all communication with the OCI API.
     """
     def __init__(self, oci_config):
-        self.client = DnsClient(oci_config)
+        if isinstance(oci_config, InstancePrincipalsSecurityTokenSigner):
+            self.client = DnsClient(config={}, signer=oci_config)
+        else:
+            self.client = DnsClient(oci_config)
 
     def add_txt_record(self, domain_name, record_name, record_content, ttl):
         zone_name = self._find_zone_name(domain_name)
