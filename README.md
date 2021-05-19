@@ -19,17 +19,16 @@ pip3 install certbot-dns-oci
 | **--dns-oci-propagation-seconds** | DNS record propagation timeout |60|
 
 ## Credentials
-Plugin requires the
-[OCI credentials configuration file](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm)
-which location is `~/.oci/config` by default. You can specify which profile
-to load in the case of multiple profiles with different values. By default
-the `DEFAULT` profile is loaded.
+**--dns-oci-credentials** special value `instance_principal` switches
+certbot to use the instance principal for OCI authentication,
+[please, read the documentation about the feature.](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm)
+Your dynamic group must be able to read `dns-zones` in  compartment and
+manage `dns-records`.
 
-**--dns-oci-credentials** accepts `instance_principal` value which
-switches certbot to use instance principal for OCI authentication,
-[please read the documentation about it.](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm)
-At least your dynamic group must be able to read `dns-zones` in
-compartment and manage `dns-records`.
+In other cases, plugin requires the
+[OCI credentials configuration file](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm),
+which is `~/.oci/config` by default. You can specify the profile to load
+(usually `DEFAULT`)
 ## Example
 
 ```shell
