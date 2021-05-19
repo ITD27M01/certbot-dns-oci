@@ -81,6 +81,9 @@ class _OciClient:
 
     def add_txt_record(self, domain_name, record_name, record_content, ttl):
         zone_name = self._find_zone_name(domain_name)
+        if zone_name is None:
+            raise errors.PluginError('Cannot find zone for domain name {}'.format(domain_name))
+
         try:
             logger.debug('Update TXT record with data: %s', record_content)
             update_rr_set_details = UpdateRRSetDetails(
@@ -96,19 +99,23 @@ class _OciClient:
             self.client.update_rr_set(zone_name_or_id=zone_name,
                                       domain=record_name, rtype='TXT',
                                       update_rr_set_details=update_rr_set_details)
-        except Exception as e:
+        except ServiceError as e:
             logger.warning('Error updating TXT record %s using the OCI API: %s', record_name, e)
+            raise errors.PluginError('Cannot create TXT record: {}'.format(e))
 
     def del_txt_record(self, domain_name, record_name):
         zone_name = self._find_zone_name(domain_name)
-        rr_set = self.client.get_rr_set(zone_name_or_id=zone_name, domain=record_name, rtype='TXT')
+        if zone_name is None:
+            raise errors.PluginError('Cannot find zone for domain name {}'.format(domain_name))
 
         try:
+            rr_set = self.client.get_rr_set(zone_name_or_id=zone_name, domain=record_name, rtype='TXT')
             if rr_set.data.items:
                 logger.debug('Removing TXT record with data: %s', rr_set.data.items)
                 self.client.delete_rr_set(zone_name_or_id=zone_name, domain=record_name, rtype='TXT')
-        except Exception as e:
-            logger.warning('Error deleting TXT record %s using the OCI API: %s', rr_set.data.items, e)
+        except ServiceError as e:
+            logger.warning('Error deleting TXT record %s using the OCI API: %s', record_name, e)
+            raise errors.PluginError('Cannot delete TXT record: {}'.format(e))
 
     def _find_zone_name(self, domain_name):
         domain_name_guesses = dns_common.base_domain_name_guesses(domain_name)
@@ -120,4 +127,4 @@ class _OciClient:
                 if e.status == 404:
                     pass
 
-        raise errors.PluginError('Cannot find zone for domain name {}'.format(domain_name))
+        return None
