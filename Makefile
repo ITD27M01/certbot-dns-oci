@@ -48,8 +48,14 @@ sdist:
 	$(MAKE) clean
 	@python setup.py sdist
 
+.PHONY: bdist
+bdist:
+	$(MAKE) clean
+	@python setup.py bdist_wheel
+
 .PHONY: upload
 upload:
 	$(MAKE) clean
 	$(MAKE) sdist
+	$(MAKE) bdist
 	@twine upload --username __token__ --password $(TWINE_PASSWORD) dist/*
