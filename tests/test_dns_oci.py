@@ -2,6 +2,8 @@
 
 import unittest
 
+from configobj import ConfigObj
+from Crypto.PublicKey import RSA
 import oci
 try:
     import mock
@@ -9,6 +11,7 @@ except ImportError: # pragma: no cover
     from unittest import mock # type: ignore
 
 from certbot import errors
+from certbot.compat import os
 from certbot.plugins import dns_test_common
 from certbot.plugins.dns_test_common import DOMAIN
 from certbot.tests import util as test_util
@@ -24,8 +27,9 @@ OCI_CREDENTIALS = {
     "tenancy": "ocid1.tenancy.oc1..fake_tenancy",
     "region": "eu-frankfurt-1",
     "fingerprint": "1a:a2:36:85:e6:9e:ea:2d:ce:0b:0e:5c:bc:e3:cd:88",
-    "key_file": "tests/fake.pem"
+    "key_file": None
 }
+RSA_KEY_LENGTH = 1024
 
 
 class AuthenticatorTest(test_util.TempDirTestCase, dns_test_common.BaseAuthenticatorTest):
@@ -35,7 +39,20 @@ class AuthenticatorTest(test_util.TempDirTestCase, dns_test_common.BaseAuthentic
 
         super().setUp()
 
-        path = "tests/test_oci_config.ini"
+        oci_config = ConfigObj()
+        oci_config['DEFAULT'] = OCI_CREDENTIALS
+
+        key_path = os.path.join(self.tempdir, 'test_key.pem')
+        key = RSA.generate(RSA_KEY_LENGTH)
+        with open(key_path, 'wb') as key_file:
+            key_file.write(key.export_key('PEM'))
+
+        oci_config['DEFAULT']['key_file'] = key_path
+
+        path = os.path.join(self.tempdir, 'test_oci_config.ini')
+        oci_config.filename = path
+        oci_config.write()
+
         self.config = mock.MagicMock(oci_credentials=path,
                                      oci_profile='DEFAULT',
                                      oci_propagation_seconds=0)  # don't wait during tests
@@ -61,16 +78,24 @@ class AuthenticatorTest(test_util.TempDirTestCase, dns_test_common.BaseAuthentic
         self.assertEqual(expected, self.mock_client.mock_calls)
 
 
-class OciClientTest(unittest.TestCase):
+class OciClientTest(test_util.TempDirTestCase, unittest.TestCase):
 
-    id_num = 1
     record_prefix = "_acme-challenge"
     record_name = record_prefix + "." + DOMAIN
-    record_content = "bar"
+    record_content = "dns-01_challenge_secret"
     record_ttl = 60
 
     def setUp(self):
         from certbot_dns_oci._internal.dns_oci import _OciClient
+
+        super().setUp()
+
+        key_path = os.path.join(self.tempdir, 'test_key.pem')
+        key = RSA.generate(RSA_KEY_LENGTH)
+        with open(key_path, 'wb') as key_file:
+            key_file.write(key.export_key('PEM'))
+
+        OCI_CREDENTIALS['key_file'] = key_path
 
         self.oci_client = _OciClient(OCI_CREDENTIALS)
 
