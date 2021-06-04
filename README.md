@@ -1,7 +1,7 @@
 # Oracle Cloud Infrastructure DNS Authenticator plugin for Certbot
 
-Plugin automates the process of `dns-01` challenge by managing TXT records
-using the Oracle Cloud Infrastructure DNS service.
+Plugin automates the process of dns-01 challenge by managing TXT records in
+the Oracle Cloud Infrastructure DNS service.
 
 ## Installation
 
@@ -19,16 +19,16 @@ pip3 install certbot-dns-oci
 | **--dns-oci-propagation-seconds** | DNS record propagation timeout |60|
 
 ## Credentials
-**--dns-oci-credentials** special value `instance_principal` switches
-certbot to use the instance principal for OCI authentication,
-[please, read the documentation about the feature.](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm)
-Your dynamic group must be able to read `dns-zones` in  compartment and
-manage `dns-records`.
+**--dns-oci-credentials** has special value `instance_principal` that switches
+certbot to use the instance principal for OCI authentication
+([please, read the documentation about the feature.](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm))
+Corresponding dynamic group must be able to read `dns-zones` in compartment
+and manage `dns-records`.
 
 In other cases, plugin requires the
 [OCI credentials configuration file](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm),
-which is `~/.oci/config` by default. You can specify the profile to load
-(usually `DEFAULT`)
+which is `~/.oci/config` by default.
+The profile can be specified by **--dns-oci-profile** (usually `DEFAULT`).
 ## Example
 
 ```shell
